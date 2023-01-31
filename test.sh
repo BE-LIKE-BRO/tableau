@@ -50,17 +50,20 @@ done
 while [ $floor -lt $license_count ]
 do 
     ((floor++))
-    for formatted_date in `sed -n ${floor}p formatted_dates.txt`
-    do 
-        echo "comparing dates"
-        if [ "$today" -lt "$formatted_date" ]
-        then 
-            echo "still have some time left"
-        else
-            echo "expired"
-        fi 
+    formatted_date=$(sed -n ${floor}p formatted_dates.txt)
+    echo "comparing dates"
+    echo "$formatted_date"
+    if [ "$today" -lt "$formatted_date" ]
+    then 
+        echo "still have some time left"
+    else
+        echo "expired"
     done
 
 done
 
 
+# for formatted_date in `sed -n ${floor}p formatted_dates.txt`
+#     # do 
+        
+#     #     fi 
