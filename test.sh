@@ -52,6 +52,7 @@ do
     ((floor++))
     for formatted_date in `sed -n ${floor}p formatted_dates.txt`
     do 
+        echo "comparing dates"
         if [ "$today" -lt "$formatted_date" ]
         then 
             echo "still have some time left"
@@ -61,8 +62,5 @@ do
     done
 
 done
-
-
-
 
 
