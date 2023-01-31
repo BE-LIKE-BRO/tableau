@@ -36,16 +36,16 @@ touch formatted_dates.txt
 ### Format licence expiry dates and put then in a text file 
 license_count=$(sed -n '$=' licenses_only.txt)
 
-# while [ $floor -lt $license_count ]
-# do 
-#     ((floor++))
-#     for expiry_date in `sed -n ${floor}p expiry_dates.txt`
-#     do 
-#         echo "setting up formatted dates"
-#         date -d "$expiry_date" +"%Y%m%d" >> formatted_dates.txt
-#     done
+while [ $floor -lt $license_count ]
+do 
+    ((floor++))
+    for expiry_date in `sed -n ${floor}p expiry_dates.txt`
+    do 
+        echo "setting up formatted dates"
+        date -d "$expiry_date" +"%Y%m%d" >> formatted_dates.txt
+    done
 
-# done
+done
 
 while [ $floor -lt $license_count ]
 do 
