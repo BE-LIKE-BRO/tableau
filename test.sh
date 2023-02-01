@@ -55,12 +55,13 @@ do
 # Compare dates and alert expired dates. Otherwise stop running
         if [[ $today -lt $formatted_date ]]
         then 
-            echo "still have some time left"
+            active_license=$(sed -n ${floor}p license_ids.txt)
+            echo "license '${active_license}' is still active"
         else
             expired_license=$(sed -n ${floor}p license_ids.txt)
-            expired_license_date=$(sed -n ${floor}p expiry_dates.txt.txt)
+            expired_license_date=$(sed -n ${floor}p expiry_dates.txt)
             echo "${expired_license}" >> expired_license_ids.txt
-            echo "the license ${expired_license} expired on ${expired_license_date}"
+            echo "the license '${expired_license}' expired on ${expired_license_date}"
         fi
     done
 
