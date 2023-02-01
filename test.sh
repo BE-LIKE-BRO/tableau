@@ -58,50 +58,15 @@ do
             echo "still have some time left"
         else
             expired_license=$(sed -n ${floor}p license_ids.txt)
-            echo "the license ${expired_license} is expired"
+            expired_license_date=$(sed -n ${floor}p expiry_dates.txt.txt)
+            echo "${expired_license}" >> expired_license_ids.txt
+            echo "the license ${expired_license} expired on ${expired_license_date}"
         fi
     done
 
 done 
 
+# expired_licenses=$(cat expired_license_ids.txt)
 
-
-
-
-# while [ $floor -lt $license_count ]
-# do 
-#     ((floor++))
-#     formatted_date=$(sed -n ${floor}p formatted_dates.txt)
-#     echo "comparing dates"
-#     echo "$formatted_date"
-#     if [[ $today -lt $formatted_date ]]
-#     then 
-#         echo "still have some time left"
-#     else
-#         echo "expired"
-#     fi
-
-# done
-
-
-
-# while [ $floor -lt $license_count ]
-# do 
-#     ((floor++))
-#     for formatted_date in `sed -n ${floor}p formatted_dates.txt`
-#     do 
-#         echo "comparing dates"
-#         echo "$formatted_date"
-#         if [ $today -lt $formatted_date ]
-#         then 
-#             echo "still have some time left"
-#         else
-#             echo "expired"
-#         fi
-#     done
-# done
-
-
-
-
+# aws sns publish --topic-arn arn:aws:sns:us-east-2:781604141791:tableau --message "These licenses are expired $expired_licenses"
 
