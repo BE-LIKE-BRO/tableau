@@ -30,31 +30,43 @@ sed '1,2d' licenses.txt > licenses_only.txt
 ### Filter the license list to show only expiry dates
 cat licenses_only.txt | awk  '{print $8}' > expiry_dates.txt 
 
+###  Filter the license list to show only License ids
+cat licenses_only.txt | awk  '{print $1}' > license_ids.txt
+
 ### create a text file to hold list of formatted expiry dates
 touch formatted_dates.txt
 
-### Format licence expiry dates and put then in a text file 
+### Format license expiry dates and put then in a text file 
 license_count=$(sed -n '$=' licenses_only.txt)
 
+# Go through the list of expiry dates and find the one(s) older that today, flag them as expired then notify specified email
 while [ $floor -lt $license_count ]
 do 
     ((floor++))
     for expiry_date in `sed -n ${floor}p expiry_dates.txt`
     do 
         echo "setting up formatted dates"
+# Change the license expiry date from mm/dd/yy to yy/mm/dd. This helps compare dates easily 
         date -d "$expiry_date" +"%Y%m%d" >> formatted_dates.txt
+# print the iterated expiry date and put it in a variable to compare
         formatted_date=$(sed -n ${floor}p formatted_dates.txt)
         echo "comparing dates"
         echo "$formatted_date"
+# Compare dates and alert expired dates. Otherwise stop running
         if [[ $today -lt $formatted_date ]]
         then 
             echo "still have some time left"
         else
-            echo "expired"
+            expired_license=$(sed -n ${floor}p license_ids.txt)
+            echo "the license ${expired_license} is expired"
         fi
     done
 
 done 
+
+
+
+
 
 # while [ $floor -lt $license_count ]
 # do 
