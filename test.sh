@@ -43,24 +43,33 @@ do
     do 
         echo "setting up formatted dates"
         date -d "$expiry_date" +"%Y%m%d" >> formatted_dates.txt
+        formatted_date=$(sed -n ${floor}p formatted_dates.txt)
+        echo "comparing dates"
+        echo "$formatted_date"
+        if [[ $today -lt $formatted_date ]]
+        then 
+            echo "still have some time left"
+        else
+            echo "expired"
+        fi
     done
 
-done &
+done 
 
-while [ $floor -lt $license_count ]
-do 
-    ((floor++))
-    formatted_date=$(sed -n ${floor}p formatted_dates.txt)
-    echo "comparing dates"
-    echo "$formatted_date"
-    if [ $today -lt $formatted_date ]
-    then 
-        echo "still have some time left"
-    else
-        echo "expired"
-    fi
+# while [ $floor -lt $license_count ]
+# do 
+#     ((floor++))
+#     formatted_date=$(sed -n ${floor}p formatted_dates.txt)
+#     echo "comparing dates"
+#     echo "$formatted_date"
+#     if [[ $today -lt $formatted_date ]]
+#     then 
+#         echo "still have some time left"
+#     else
+#         echo "expired"
+#     fi
 
-done
+# done
 
 
 
