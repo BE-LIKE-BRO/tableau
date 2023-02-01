@@ -8,17 +8,21 @@ today=$(date +'%Y%m%d' | tr -d '/')
 
 ### if directory exists, move to the directory else create a new directory
 echo "setting up working directory..."
+echo " "
 if [ -d "$path/$dir_name/" ]
 then 
-    echo "directory exists, moving to directory"
+    echo "directory exists, moving to directory..."
+    echo " "
     cd $path/$dir_name/
 else
+    echo "directory doesn't exist, setting up directory..."
+    echo " "
     mkdir $path/$dir_name/ && cd $path/$dir_name/
-    echo "directory doesn't exist, setting up directory"
 fi 
 
 ### clean up working directory to setup new files
-echo "cleaning up directory"
+echo "cleaning up directory..."
+echo " "
 rm -rf *.*
 
 ### List all licenses on this tableau server and put the output in text file
@@ -48,11 +52,11 @@ do
         echo "setting up formatted dates"
 # Change the license expiry date from mm/dd/yy to yy/mm/dd. This helps compare dates easily 
         date -d "$expiry_date" +"%Y%m%d" >> formatted_dates.txt
-# print the iterated expiry date and put it in a variable to compare
+# print the iterated expiry date and put it in a variable to compare with today
         formatted_date=$(sed -n ${floor}p formatted_dates.txt)
-        echo "comparing dates"
-        echo "$formatted_date"
-# Compare dates and alert expired dates. Otherwise stop running
+        echo "comparing dates..."
+        echo " "
+# Compare dates and put expired dates in a file
         if [[ $today -lt $formatted_date ]]
         then 
             active_license=$(sed -n ${floor}p license_ids.txt)
@@ -61,13 +65,13 @@ do
             expired_license=$(sed -n ${floor}p license_ids.txt)
             expired_license_date=$(sed -n ${floor}p expiry_dates.txt)
             echo "${expired_license}" >> expired_license_ids.txt
-            echo "the license '${expired_license}' expired on ${expired_license_date}"
         fi
     done
 
 done 
 
-# expired_licenses=$(cat expired_license_ids.txt)
+# Show expired licenses
+expired_licenses=$(cat expired_license_ids.txt)
 
-# aws sns publish --topic-arn arn:aws:sns:us-east-2:781604141791:tableau --message "These licenses are expired $expired_licenses"
+aws sns publish --topic-arn arn:aws:sns:us-east-2:781604141791:tableau --message "These licenses are expired $expired_licenses"
 
