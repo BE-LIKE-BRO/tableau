@@ -78,6 +78,7 @@ expired_license_count=$(sed -n '$=' expired_license_ids.txt)
 
 if [[ $expired_license_count -ne 0 ]]
         then 
+            echo "found some expired licenses. Sending email alert..."
             expired_licenses=$(cat expired_license_ids.txt)
             aws sns publish --topic-arn ${sns_topic} --message "These tableau licenses are no longer active; '${expired_licenses}' "
         fi
