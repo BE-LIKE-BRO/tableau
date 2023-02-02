@@ -5,7 +5,7 @@ path=$(pwd)
 dir_name="test"
 floor=0
 today=$(date +'%Y%m%d' | tr -d '/') 
-sns_topic="arn:aws:sns:us-east-2:781604141791:tableau"
+sns_topic=""
 
 ### if directory exists, move to the directory else create a new directory
 echo "setting up working directory..."
@@ -67,7 +67,6 @@ do
             expired_license=$(sed -n ${floor}p license_ids.txt)
             echo "${expired_license}" >> expired_license_ids.txt
             # expiration_date=$(sed -n ${floor}p expiry_dates.txt)
-            
             # aws sns publish --topic-arn ${sns_topic} --message "The tableau license '${expired_license}' is no longer active since $expiration_date"
         fi
     done
