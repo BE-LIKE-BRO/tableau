@@ -64,8 +64,8 @@ do
             active_license=$(sed -n ${floor}p license_ids.txt)
             echo "license '${active_license}' is still active"
         else
+            expired_license=$(sed -n ${floor}p license_ids.txt)
             echo "${expired_license}" >> expired_license_ids.txt
-            # expired_license=$(sed -n ${floor}p license_ids.txt)
             # expiration_date=$(sed -n ${floor}p expiry_dates.txt)
             
             # aws sns publish --topic-arn ${sns_topic} --message "The tableau license '${expired_license}' is no longer active since $expiration_date"
