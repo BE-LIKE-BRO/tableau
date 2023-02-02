@@ -5,6 +5,7 @@ path=$(pwd)
 dir_name="test"
 floor=0
 today=$(date +'%Y%m%d' | tr -d '/') 
+sns_topic="arn:aws:sns:us-east-2:781604141791:tableau"
 
 ### if directory exists, move to the directory else create a new directory
 echo "setting up working directory..."
@@ -50,23 +51,24 @@ do
     ((floor++))
     for expiry_date in `sed -n ${floor}p expiry_dates.txt`
     do 
-        echo "setting up formatted dates"
+        echo "setting up formatted dates..."
 # Change the license expiry date from mm/dd/yy to yy/mm/dd. This helps compare dates easily 
         date -d "$expiry_date" +"%Y%m%d" >> formatted_dates.txt
 # print the iterated expiry date and put it in a variable to compare with today
         formatted_date=$(sed -n ${floor}p formatted_dates.txt)
+# Compare dates and put expired dates in a file
         echo "comparing dates..."
         echo " "
-# Compare dates and put expired dates in a file
         if [[ $today -lt $formatted_date ]]
         then 
             active_license=$(sed -n ${floor}p license_ids.txt)
             echo "license '${active_license}' is still active"
         else
-            expired_license=$(sed -n ${floor}p license_ids.txt)
-            expiration_date=$(sed -n ${floor}p expiry_dates.txt)
             echo "${expired_license}" >> expired_license_ids.txt
-            # aws sns publish --topic-arn arn:aws:sns:us-east-2:781604141791:tableau --message "The tableau license '${expired_license}' is no longer active since $expiration_date"
+            # expired_license=$(sed -n ${floor}p license_ids.txt)
+            # expiration_date=$(sed -n ${floor}p expiry_dates.txt)
+            
+            # aws sns publish --topic-arn ${sns_topic} --message "The tableau license '${expired_license}' is no longer active since $expiration_date"
         fi
     done
 
@@ -77,7 +79,7 @@ expired_license_count=$(sed -n '$=' expired_license_ids.txt)
 if [[ $expired_license_count -ne 0 ]]
         then 
             expired_licenses=$(cat expired_license_ids.txt)
-            aws sns publish --topic-arn arn:aws:sns:us-east-2:781604141791:tableau --message "These tableau licenses are no longer active; '${expired_licenses}' "
+            aws sns publish --topic-arn ${sns_topic} --message "These tableau licenses are no longer active; '${expired_licenses}' "
         fi
         
 
