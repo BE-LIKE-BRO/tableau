@@ -39,6 +39,7 @@ cat licenses_only.txt | awk  '{print $1}' > license_ids.txt
 
 ### create a text file to hold list of formatted expiry dates
 touch formatted_dates.txt
+touch expired_license_ids.txt
 
 ### Format license expiry dates and put then in a text file 
 license_count=$(sed -n '$=' licenses_only.txt)
