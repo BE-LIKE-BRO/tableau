@@ -50,9 +50,10 @@ license_count=$(sed -n '$=' licenses_only.txt)
 
 ### Check if there are any licenses in the license list text file
 license_exist_check=$(sed -n '$=' licenses.txt)
+license_exist_check2=$(tsm licenses list)
 
 ### Go through the list of expiry dates and find the one(s) older that today, flag them as expired then notify specified email
-if [[ $license_exist_check == "" ]]
+if [[ $license_exist_check == "" || $license_exist_check2 == "No licenses are currently activated." || $license_exist_check == 1 ]]
 then 
     echo "There are no licenses on this server..."
     echo "Wrapping up process..."
