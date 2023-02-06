@@ -26,6 +26,9 @@ echo "cleaning up directory..."
 echo " "
 rm -rf *.*
 
+### create licenses text file
+touch licenses.txt
+
 ### List all licenses on this tableau server and put the output in text file
 tsm licenses list > licenses.txt
 
@@ -45,46 +48,56 @@ touch expired_license_ids.txt
 ### Format license expiry dates and put then in a text file 
 license_count=$(sed -n '$=' licenses_only.txt)
 
-# Go through the list of expiry dates and find the one(s) older that today, flag them as expired then notify specified email
-while [ $floor -lt $license_count ]
-do 
-    ((floor++))
-    for expiry_date in `sed -n ${floor}p expiry_dates.txt`
-    do 
-        echo "setting up formatted dates..."
-# Change the license expiry date from mm/dd/yy to yy/mm/dd. This helps compare dates easily 
-        date -d "$expiry_date" +"%Y%m%d" >> formatted_dates.txt
-# print the iterated expiry date and put it in a variable to compare with today
-        formatted_date=$(sed -n ${floor}p formatted_dates.txt)
-# Compare dates and put expired dates in a file
-        echo "comparing dates..."
-        echo " "
-        if [[ $today -lt $formatted_date ]]
-        then 
-            active_license=$(sed -n ${floor}p license_ids.txt)
-            echo "license '${active_license}' is still active"
-        else
-            expired_license=$(sed -n ${floor}p license_ids.txt)
-            echo "${expired_license}" >> expired_license_ids.txt
-            # expiration_date=$(sed -n ${floor}p expiry_dates.txt)
-            # aws sns publish --topic-arn ${sns_topic} --message "The tableau license '${expired_license}' is no longer active since $expiration_date"
-        fi
-    done
+### Check if there are any licenses in the license list text file
+license_exist_check=$(sed -n '$=' licenses.txt)
 
+### Go through the list of expiry dates and find the one(s) older that today, flag them as expired then notify specified email
+if [[ $license_exist_check == "" ]]
+then 
+    echo "There are no licenses on this server..."
+    echo "Wrapping up process..."
+    echo "License checks DONE!"
+else
+    while [ $floor -lt $license_count ]
+    do 
+        ((floor++))
+        for expiry_date in `sed -n ${floor}p expiry_dates.txt`
+        do 
+            echo " "
+            echo "formatting date..."
+    # Change the license expiry date from mm/dd/yy to yy/mm/dd. This helps compare dates easily 
+            date -d "$expiry_date" +"%Y%m%d" >> formatted_dates.txt
+    # print the iterated expiry date and put it in a variable to compare with today
+            formatted_date=$(sed -n ${floor}p formatted_dates.txt)
+    # Compare dates and put expired dates in a file
+            echo "comparing expiry date with today..."
+            if [[ $today -lt $formatted_date ]]
+            then 
+                active_license=$(sed -n ${floor}p license_ids.txt)
+                echo " "
+                echo "license '${active_license}' is still active"
+            else
+                expired_license=$(sed -n ${floor}p license_ids.txt)
+                echo "${expired_license}" >> expired_license_ids.txt
+                expiration_date=$(sed -n ${floor}p expiry_dates.txt)
+                # aws sns publish --topic-arn ${sns_topic} --message "The tableau license '$expired_license' is no longer active since $expiration_date"
+            fi
+        done
 done 
 
 expired_license_count=$(sed -n '$=' expired_license_ids.txt)
 
-if [[ $expired_license_count -ne 0 ]]
-        then 
-            echo "found some expired licenses. Sending email alert..."
-            expired_licenses=$(cat expired_license_ids.txt)
-            aws sns publish --topic-arn ${sns_topic} --message "These tableau licenses are no longer active; 
-            '${expired_licenses}' "
-        fi
-        
-
-echo "DONE!"
-
-
-
+        if [[ $expired_license_count -ne 0 ]]
+                then 
+                    echo " "
+                    echo "Found some expired licenses. Sending email alert..."
+                    expired_licenses=$(cat expired_license_ids.txt)
+                    aws sns publish --topic-arn ${sns_topic} --message "These tableau licenses are no longer active;
+'${expired_licenses}' "
+                else
+                    echo " "
+                    echo "All licenses are active!"
+                fi
+                
+        echo "DONE!"
+fi
